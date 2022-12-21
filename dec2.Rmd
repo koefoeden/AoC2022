@@ -1,0 +1,61 @@
+```{r}
+library(tidyverse)
+```
+
+# part 1
+```{r}
+data <- read_delim("data-raw/dec2_1.txt", col_names = c("Elf","Response")) %>% 
+  mutate(across(.cols =all_of(c("Elf","Response")),
+                .fns = ~recode(.x, 
+                               A="Rock",
+                               X="Rock",
+                               B="Paper",
+                               Y="Paper",
+                               C="Scissors",
+                               Z="Scissors")),
+         choose_points=case_when(Response == "Rock" ~ 1,
+                                 Response == "Paper" ~ 2,
+                                 Response == "Scissors" ~ 3),
+         match_points=case_when(Elf==Response ~ 3,
+                                Elf == "Rock" & Response == "Paper" ~ 6,
+                                Elf == "Paper" & Response == "Rock" ~ 0,
+                                Elf == "Rock" & Response == "Scissors" ~ 0,
+                                Elf == "Scissors" & Response == "Rock" ~ 6,
+                                Elf == "Scissors" & Response == "Paper" ~ 0,
+                                Elf == "Paper" & Response == "Scissors" ~ 6),
+         total_points=choose_points+match_points)
+
+data %>% pull(total_points) %>% sum()
+```
+
+# part 2
+```{r}
+data <- read_delim("data-raw/dec2_1.txt", col_names = c("Elf","Response")) %>% 
+  mutate(Elf=recode(Elf, 
+                    A="Rock",
+                    B="Paper",
+                    C="Scissors"),
+         Response=case_when(Elf== "Paper" & Response == "X" ~ "Rock",
+                            Elf == "Paper" & Response == "Y" ~"Paper",
+                            Elf == "Paper" & Response == "Z" ~ "Scissors",
+                            Elf== "Rock" & Response == "X" ~ "Scissors",
+                            Elf == "Rock" & Response == "Y" ~"Rock",
+                            Elf == "Rock" & Response == "Z" ~ "Paper",
+                            Elf== "Scissors" & Response == "X" ~ "Paper",
+                            Elf == "Scissors" & Response == "Y" ~"Scissors",
+                            Elf == "Scissors" & Response == "Z" ~ "Rock"),
+         choose_points=case_when(Response == "Rock" ~ 1,
+                                 Response == "Paper" ~ 2,
+                                 Response == "Scissors" ~ 3),
+         match_points=case_when(Elf==Response ~ 3,
+                                Elf == "Rock" & Response == "Paper" ~ 6,
+                                Elf == "Paper" & Response == "Rock" ~ 0,
+                                Elf == "Rock" & Response == "Scissors" ~ 0,
+                                Elf == "Scissors" & Response == "Rock" ~ 6,
+                                Elf == "Scissors" & Response == "Paper" ~ 0,
+                                Elf == "Paper" & Response == "Scissors" ~ 6),
+         total_points=choose_points+match_points)
+
+data %>% pull(total_points) %>% sum()
+```
+

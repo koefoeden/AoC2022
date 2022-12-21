@@ -1,0 +1,8 @@
+[X] [S] [C] [X] [X] [Z] [X] [X] [X]
+[F] [J] [P] [X] [X] [T] [X] [N] [X]
+[G] [H] [G] [Q] [X] [G] [X] [D] [X]
+[V] [V] [D] [G] [F] [D] [X] [V] [X]
+[R] [B] [F] [N] [N] [Q] [L] [S] [X]
+[J] [M] [M] [P] [H] [V] [B] [B] [D]
+[L] [P] [H] [D] [L] [F] [D] [J] [L]
+[D] [T] [V] [M] [J] [N] [F] [M] [G]

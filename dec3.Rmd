@@ -1,0 +1,51 @@
+```{r}
+library(tidyverse)
+```
+
+# Part 1
+```{r}
+data <- read_tsv(file = "data-raw/dec3_1.txt", col_names = c("items")) %>% pull()
+lengths <- nchar(data)
+
+items <- list()
+Letters <- c(letters,LETTERS)
+for (i in seq_along(data)) {
+  half_length <- lengths[[i]]/2
+  
+  first <-  substr(data[[i]],start = 1, stop = half_length) %>% str_split(pattern = "") %>% unlist()
+  second <- substr(data[[i]],start= 1+ half_length, stop = half_length*2) %>% str_split(pattern = "") %>% unlist()
+  
+  shared_item <- intersect(first,second)
+  
+  value <- which(shared_item==Letters)
+  items[[i]] <- value
+}
+
+items %>% unlist() %>% sum()
+```
+
+# Part 2
+```{r}
+badges <- c()
+for (i in seq(1, length(data), 3)) {
+  
+  first <-  data[[i]] %>% str_split(pattern = "",simplify = T)
+  second <- data[[i+1]] %>% str_split(pattern = "", simplify = T)
+  third <- data[[i+2]] %>% str_split(pattern = "",simplify = T)
+  
+  shared_item <- intersect(first,second) %>% 
+    intersect(y = third)
+  value <- which(shared_item==Letters)
+  badges[[as.character(i)]] <- value
+  
+  
+}
+
+badges %>% unlist() %>% sum()
+```
+```{r}
+intersect(c("CTsVssjPTWPbzhfbfqqpbqJq") %>% str_split(pattern = "", simplify = T), c("RRttdQlRdnNpdmwBnBDhFrGrqDGBqJJfJD")%>% str_split(pattern = "", simplify = T)) %>% intersect(c("HttgcggdNwQtgcpTsvjVPTcssjsv") %>% str_split(pattern = "", simplify = T))
+
+```
+
+

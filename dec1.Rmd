@@ -1,0 +1,43 @@
+```{r}
+library(tidyverse)
+```
+
+# Part 1
+```{r}
+data <- read_tsv(file = "data-raw/dec1_1.txt", col_names = c("Calories"), skip_empty_rows = F)
+
+
+data$Calories %>% head(10)
+```
+
+
+```{r}
+# Initialize
+elf_no <- 1
+elfs <- c()
+elfs[as.character(elf_no)] <- 0
+
+# loops
+for (element in data$Calories) {
+  if(!is.na(element)) {
+    elfs[as.character(elf_no)] <- elfs[as.character(elf_no)] + element
+  }
+  else { 
+    elf_no <- elf_no + 1
+    elfs[as.character(elf_no)] <- 0
+  }
+  
+  
+}
+
+result <- elfs %>% max()
+result
+```
+# Part 2
+```{r}
+top_3 <- elfs %>% order(decreasing = T) %>% head(3) 
+top_3
+answer_2 <- elfs[top_3] %>% sum()
+answer_2
+``` 
+

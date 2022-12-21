@@ -1,0 +1,46 @@
+```{r}
+library(tidyverse)
+```
+
+# part 1
+```{r}
+data <- read_csv("data-raw/dec4_1.txt", col_names = c("Elf1","Elf2"))
+data_sep <- data %>% 
+  separate(col = Elf1, into = c("Elf1_start","Elf1_end")) %>% 
+  separate(col = Elf2, into = c("Elf2_start","Elf2_end"))
+
+
+counts <- 0
+for (rowno in seq_len(nrow(data_sep))) {
+  Elf_1_seq <- seq(data_sep$Elf1_start[[rowno]], data_sep$Elf1_end[[rowno]])
+  Elf_2_seq <- seq(data_sep$Elf2_start[[rowno]], data_sep$Elf2_end[[rowno]])
+  
+  intersect_len <- intersect(Elf_1_seq, Elf_2_seq) %>% length() 
+  
+  if (intersect_len == length(Elf_1_seq) | intersect_len == length(Elf_2_seq)) {
+    counts <- counts +1
+  }
+  
+}
+
+counts
+```
+
+# Part 2
+```{r}
+any_overlap_counts <- 0
+for (rowno in seq_len(nrow(data_sep))) {
+  Elf_1_seq <- seq(data_sep$Elf1_start[[rowno]], data_sep$Elf1_end[[rowno]])
+  Elf_2_seq <- seq(data_sep$Elf2_start[[rowno]], data_sep$Elf2_end[[rowno]])
+  
+  intersect_len <- intersect(Elf_1_seq, Elf_2_seq) %>% length() 
+  
+  if (intersect_len > 0) {
+    any_overlap_counts <- any_overlap_counts +1
+  }
+  
+}
+
+any_overlap_counts
+```
+

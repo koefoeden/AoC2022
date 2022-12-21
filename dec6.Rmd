@@ -1,0 +1,34 @@
+```{r}
+library(tidyverse)
+```
+
+# part 1
+```{r}
+data <- read_tsv(file = "data-raw/dec6.txt", col_names = "data") %>% pull()
+data <- data %>% str_split(pattern = "", simplify = F) %>% unlist()
+
+for (ith_letter in seq_along(data)) {
+  if (ith_letter > 3) {
+    vec <- data[(ith_letter-3):ith_letter]
+    if(anyDuplicated(vec)==0) {
+      print(ith_letter)
+    }
+  }
+}
+```
+
+# part 2
+```{r}
+data <- read_tsv(file = "data-raw/dec6.txt", col_names = "data") %>% pull()
+data <- data %>% str_split(pattern = "", simplify = F) %>% unlist()
+
+for (ith_letter in seq_along(data)) {
+  if (ith_letter > 13) {
+    vec <- data[(ith_letter-13):ith_letter]
+    if(anyDuplicated(vec)==0) {
+      print(ith_letter)
+    }
+  }
+}
+```
+

@@ -1,0 +1,116 @@
+```{r setup}
+library(tidyverse)
+```
+
+```{r}
+data <- read_tsv("data-raw/dec8.txt", col_names = "X1")
+data
+df <- data %>% mutate(char_vec=str_split(X1, pattern = "")) %>% pull(char_vec) %>% map(as.numeric) %>% bind_cols()
+matrix <- df %>% as.matrix()
+
+sub_matrix <- matrix %>% head(c(5,5))
+sub_matrix
+```
+
+# Part 1
+```{r}
+calculate_trees <- function(matrix_in) {
+  summer <- 0
+  # browser()
+  dims <- dim(matrix_in)[1]
+  
+  for (i in 1:dims) {
+    for (j in 1:dims) {
+      # check for tree on the outside
+      if (i==1 | i == dims | j==1 | j==dims) 
+      {
+        summer <- summer+1
+      }
+      # check if all trees on the same row and column are smaller
+      else {
+        left <- max(matrix_in[1:(i-1),j])
+        right <- max(matrix_in[(i+1):dims, j])
+        up <- max(matrix_in[i, 1:(j-1)])
+        down <- max(matrix_in[i, (j+1):dims])
+        val <- matrix_in[i, j]
+        if (left < val | right < val | up< val | down < val) 
+        {
+          summer <- summer+1
+        }
+        
+        
+      }
+    }
+  }
+  return(summer)
+}
+calculate_trees(matrix)
+```
+
+# Part 2
+```{r}
+test_vec <- c(3,0,3,7,3,2,5,5,1,2,6,5,3,3,2,3,3,5,4,9,3,5,3,9,0)
+test_matrix <- matrix(test_vec, nrow=5, ncol=5, byrow=T)
+
+
+get_best_scenic_score <- function(matrix_in) {
+  best_scenic_score <- 0
+  dims <- dim(matrix_in)[1]
+  
+  # loop through all trees, but only considering non-edge trees
+  for (i in 2:dims-1) {
+    for (j in 2:dims-1) {
+      val <- matrix_in[i, j]
+      
+      # up
+      up <- which(matrix_in[1:(i-1),j] >= val)
+      if (length(up)==0) {
+        up <- i-1
+      }
+      else {
+        up <- i-max(up)
+      }
+      
+      # down
+      down <- which(matrix_in[(i+1):dims, j] >= val)
+      if (length(down)==0) {
+        down <- dims-i
+      }
+      else {
+        down <- min(down)
+      }
+      
+      # left
+      left <- which(matrix_in[i, 1:(j-1)] >= val)
+      if (length(left)==0) {
+        left <- j-1
+      }
+      else {
+        left <- j-max(left)
+      }
+      
+      # right
+      right <- which(matrix_in[i, (j+1):dims] >= val)
+      if (length(right)==0) {
+        right <- dims-j
+      }
+      else {
+        right <- min(right)
+      }
+      
+      viewing_score <- left * up * down * right
+      # print(str_glue("Tree row:{i} and col:{j} with height: {val} has score of:{viewing_score})"))
+      if (viewing_score > best_scenic_score)  {
+        best_scenic_score <- viewing_score
+      }
+      
+      
+    }
+  }
+  return(best_scenic_score)
+}
+
+res <- get_best_scenic_score(matrix)
+res
+```
+

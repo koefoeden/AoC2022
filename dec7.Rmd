@@ -1,0 +1,125 @@
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+})
+
+data <- read_tsv(file = "data-raw/dec7.txt", col_names = "line") %>% pull() %>% `[`(-1)
+```
+# part 1
+## Build tree directory recursively
+```{r}
+dir_tree <- list("/"=list("dir_size"=0))
+path <- "/"
+
+# Build tree-directory 
+for (command in data) {
+  if (str_detect(command, pattern = "dir")) {
+    dir_name <- str_remove(command, pattern ="dir ")
+    
+    dir_tree[[path]][[dir_name]] <- list("dir_size"=c(0))
+  }
+  
+  # Go a directory up
+  else if (str_detect(command, pattern = "cd \\.\\.")) {
+    path <- head(path, -1)
+  }
+  
+  # enter directory
+  else if (str_detect(command, "\\$ cd")) {
+    
+    go_to_dir <- str_remove(command, "\\$ cd ")
+    path <- c(path, go_to_dir)
+  }
+  
+  # get file size
+  else if (str_detect(command, pattern = "[0-9]+")) {
+    file_size <- str_extract(command, pattern = "[0-9]+") %>% as.double()
+    current_dir_size <- dir_tree[[path]][["dir_size"]]
+    dir_tree[[path]][["dir_size"]] <- dir_tree[[path]][["dir_size"]] + file_size
+  }
+  
+  
+}
+View(dir_tree)
+```
+
+
+## Get cummualtive dir sizes recursively
+```{r}
+get_tree_with_cum_dir_size <- function(dir_tree) {
+  # browser()
+  
+  # base case
+  if (length(dir_tree)==1) {
+    dir_tree$cum_dir_size <- dir_tree$dir_size
+    return(dir_tree)
+    
+  }
+  # non-base case
+  else{
+    dir_tree_first <- get_tree_with_cum_dir_size(dir_tree[[2]])
+    dir_tree_rest<- get_tree_with_cum_dir_size(dir_tree[-2])
+    
+    
+    dir_tree[[2]] <- dir_tree_first
+    dir_tree[-2] <- dir_tree_rest
+    
+    dir_tree$cum_dir_size <- dir_tree_first$cum_dir_size + dir_tree_rest$cum_dir_size
+    return(dir_tree)
+  } 
+}
+
+dir_tree_w_indirect_sizes <- get_tree_with_cum_dir_size(dir_tree[[1]])
+View(dir_tree_w_indirect_sizes)
+```
+
+## Traverse directories recursively
+```{r}
+get_sum_of_indirect_sizes <- function(dir_tree) {
+  
+  # base case
+  if (length(dir_tree)==2) {
+    if (dir_tree$cum_dir_size<=1e5) return(dir_tree$cum_dir_size) else return(0)
+  }
+  else {
+    tree_sum_first <- get_sum_of_indirect_sizes(dir_tree[[2]])
+    tree_sum_rest <- get_sum_of_indirect_sizes(dir_tree[-2])
+    
+    return(tree_sum_first+tree_sum_rest)
+  }
+}
+
+
+get_sum_of_indirect_sizes(dir_tree_w_indirect_sizes)
+
+```
+
+## list method
+```{r}
+total_size <- dir_tree_w_indirect_sizes %>% 
+  unlist() %>% 
+  enframe() %>% 
+  filter(str_detect(name, "cum_dir_size"),
+         value<=1e5) %>% 
+  summarise(sum(value)) %>% pull()
+total_size
+```
+
+# Part two
+```{r}
+system_size <- 7e7
+used_space <- dir_tree_w_indirect_sizes$cum_dir_size
+space_free <- system_size-used_space
+space_to_be_cleared <- 3e7-space_free
+space_to_be_cleared
+
+dir_tree_w_indirect_sizes %>% 
+  unlist() %>% 
+  enframe() %>% 
+  filter(str_detect(name, "cum_dir_size")) %>% 
+  mutate(space_after_clear =value-space_to_be_cleared) %>% 
+  filter(space_after_clear>0) %>% 
+  arrange(space_after_clear)
+
+```
+

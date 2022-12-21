@@ -1,0 +1,47 @@
+```{r}
+library(tidyverse)
+```
+
+```{r}
+moves <- read_delim("data-raw/dec5_moves.txt",delim = " ", col_names = c("word1","quantity","word2","from","word3","to")) %>% select(quantity,from,to)
+moves
+
+stack <- read_delim("data-raw/dec5_stack.txt", delim = " ",col_names = c("1","2","3","4", "5", "6", "7","8","9"))
+
+stacks_list <- stack %>% mutate(across(everything(), ~str_remove_all(.x, "\\[|\\]"))) %>% as.list() %>% map(~str_subset(., "X", negate = T))
+stacks_list
+```
+
+# part 1
+```{r}
+for (move_id in 1:nrow(moves)) {
+  from <- moves$from[[move_id]]
+  to <- moves$to[[move_id]]
+  no_moves <- moves$quantity[[move_id]]
+  
+  for (move_num in 1:no_moves) {
+    crate <- stacks_list[[from]][1]
+    stacks_list[[from]] <- stacks_list[[from]][-1]
+    stacks_list[[to]] <- c(crate, stacks_list[[to]])
+  }
+}
+
+stacks_list %>% map(~head(.x, 1)) %>% unlist() %>% paste(collapse = "")
+```
+
+# part 2
+```{r}
+stacks_list <- stack %>% mutate(across(everything(), ~str_remove_all(.x, "\\[|\\]"))) %>% as.list() %>% map(~str_subset(., "X", negate = T))
+
+for (move_id in 1:nrow(moves)) {
+  from <- moves$from[[move_id]]
+  to <- moves$to[[move_id]]
+  no_moves <- moves$quantity[[move_id]]
+  
+  crates <- stacks_list[[from]][1:no_moves]
+  stacks_list[[from]] <- stacks_list[[from]][-(1:no_moves)]
+  stacks_list[[to]] <- c(crates, stacks_list[[to]])
+}
+
+stacks_list %>% map(~head(.x, 1)) %>% unlist() %>% paste(collapse = "")
+```
